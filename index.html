@@ -161,7 +161,9 @@
     search.addEventListener('input',()=>{ applyFilters(); });
 
     // 載入 cards.json
-    fetch('cards.json').then(r=>r.json()).then(data=>{
+    fetch('https://opensheet.elk.sh/1FJLx_6Jp_qJ908AHmSsXNopTI4m9NV048J59oXKXL9A/1')
+  .then(r=>r.json())
+  .then(data=>{
       CARDS = data;
       buildFilters();
       render(CARDS);
