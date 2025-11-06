@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>小卡圖鑑</title>
+<title>小卡圖鑑 - 方法二</title>
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { text-align: center; }
@@ -29,10 +29,11 @@ select { margin: 0 10px; padding: 5px; }
 }
 
 .card img { 
-  width: 100%;          /* 寬度填滿卡片 */
-  height: auto;         /* 高度自動調整保持比例 */
-  max-height: 60vw;     /* 最大高度限制，響應式 */
-  object-fit: contain;   /* 保持比例 */
+  max-height: 150px;       /* 圖片高度上限 */
+  width: auto;             /* 自動寬度保持比例 */
+  display: block; 
+  margin: 0 auto; 
+  object-fit: contain;      /* 保持比例，不裁切 */
   border-radius: 8px;
 }
 
@@ -57,7 +58,7 @@ select { margin: 0 10px; padding: 5px; }
 </style>
 </head>
 <body>
-<h1>小卡圖鑑</h1>
+<h1>小卡圖鑑 - 方法二</h1>
 
 <div class="filters">
   <select id="yearFilter">
