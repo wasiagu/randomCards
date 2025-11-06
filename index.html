@@ -20,7 +20,7 @@ select { margin: 0 10px; padding: 5px; }
   height: 250px;                /* 卡片統一高度 */
   display: flex; 
   flex-direction: column; 
-  justify-content: flex-start;   /* 文字靠下可調整 */
+  justify-content: flex-start;   /* 文字可靠下或置中 */
   align-items: center; 
   background: #fff; 
   border-radius: 12px; 
@@ -30,19 +30,19 @@ select { margin: 0 10px; padding: 5px; }
 }
 
 .card img { 
-  max-height: 150px;           /* 圖片固定高度 */
-  width: auto;                  /* 寬度自動，保持比例 */
+  max-height: 150px;            /* 圖片最大高度 */
+  max-width: 100%;              /* 圖片寬度不超過卡片 */
+  object-fit: contain;          /* 保持比例，完整顯示 */
   display: block; 
   margin: 0 auto; 
-  object-fit: contain;          /* 保持比例，不裁切 */
-  border-radius: 8px; 
 }
 
 .card .meta { 
-  margin-top: 6px; 
+  margin-top: 10px; 
+  text-align: center; 
   font-size: 0.9em; 
   color: #555; 
-  text-align: center; 
+  flex-shrink: 0;               /* 文字固定位置 */
 }
 </style>
 </head>
@@ -106,75 +106,4 @@ function applyFilters(){
   let filtered = allCards.filter(c=>{
     return (!yearVal || c.year === yearVal) &&
            (!themeVal || c.theme === themeVal) &&
-           (!memberVal || c.member === memberVal);
-  });
-
-  // 根據條件排序
-  if(!yearVal && !themeVal && !memberVal){
-    filtered = shuffleArray(filtered); // 全部隨機
-  } else if(yearVal && !themeVal && !memberVal){
-    filtered = shuffleArray(filtered); // 只選年份 → 隨機
-  } else if(themeVal){
-    filtered.sort((a,b)=>{
-      if(a.member<b.member) return -1;
-      if(a.member>b.member) return 1;
-      return getNumber(a.img)-getNumber(b.img);
-    });
-  } else if(memberVal && !yearVal && !themeVal){
-    filtered.sort((a,b)=>{
-      if(a.year<b.year) return -1;
-      if(a.year>b.year) return 1;
-      if(a.theme<b.theme) return -1;
-      if(a.theme>b.theme) return 1;
-      return getNumber(a.img)-getNumber(b.img);
-    });
-  }
-
-  renderCards(filtered);
-}
-
-// 生成篩選選單
-function populateFilters(cards){
-  const yearSet = new Set(cards.map(c=>c.year));
-  const themeSet = new Set(cards.map(c=>c.theme));
-  const memberSet = new Set(cards.map(c=>c.member));
-
-  const yearSelect = document.getElementById('yearFilter');
-  const themeSelect = document.getElementById('themeFilter');
-  const memberSelect = document.getElementById('memberFilter');
-
-  yearSet.forEach(y=>{
-    const option = document.createElement('option');
-    option.value = y;
-    option.textContent = y;
-    yearSelect.appendChild(option);
-  });
-  themeSet.forEach(t=>{
-    const option = document.createElement('option');
-    option.value = t;
-    option.textContent = t;
-    themeSelect.appendChild(option);
-  });
-  memberSet.forEach(m=>{
-    const option = document.createElement('option');
-    option.value = m;
-    option.textContent = m;
-    memberSelect.appendChild(option);
-  });
-
-  [yearSelect, themeSelect, memberSelect].forEach(sel=>{
-    sel.addEventListener('change', applyFilters);
-  });
-}
-
-// fetch Sheet
-fetch(sheetURL)
-  .then(r=>r.json())
-  .then(data=>{
-    allCards = data;
-    renderCards(shuffleArray([...allCards])); // 初始隨機
-    populateFilters(allCards); // 初始化篩選選單
-  });
-</script>
-</body>
-</html>
+           (!memberVal || c.member === memb
