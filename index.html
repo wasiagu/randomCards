@@ -6,34 +6,61 @@
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { text-align: center; }
+
 .filters { margin-bottom: 20px; text-align: center; }
 select { margin: 0 10px; padding: 5px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 12px; }
-.card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); padding: 10px; text-align: center; }
-.card img {   
-  max-height: 200px; /* 統一高度 */
-  width: auto;       /* 寬度自動調整，保持比例 */
-  display: block;
-  margin: 0 auto;    /* 置中圖片 */
-  object-fit: contain; /* 保持比例，不裁切 */
+
+.grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); 
+  gap: 12px; 
+}
+
+.card { 
+  height: 250px;                /* 卡片統一高度 */
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-start;   /* 文字靠下可調整 */
+  align-items: center; 
+  background: #fff; 
+  border-radius: 12px; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12); 
+  padding: 10px; 
+  overflow: hidden;
+}
+
+.card img { 
+  max-height: 150px;           /* 圖片固定高度 */
+  width: auto;                  /* 寬度自動，保持比例 */
+  display: block; 
+  margin: 0 auto; 
+  object-fit: contain;          /* 保持比例，不裁切 */
   border-radius: 8px; 
 }
-.card .meta { margin-top: 6px; font-size: 0.9em; color: #555; }
+
+.card .meta { 
+  margin-top: 6px; 
+  font-size: 0.9em; 
+  color: #555; 
+  text-align: center; 
+}
 </style>
 </head>
 <body>
 <h1>小卡圖鑑</h1>
+
 <div class="filters">
-<select id="yearFilter">
-  <option value="">全部年份</option>
-</select>
-<select id="themeFilter">
-  <option value="">全部系列</option>
-</select>
-<select id="memberFilter">
-  <option value="">全部成員</option>
-</select>
+  <select id="yearFilter">
+    <option value="">全部年份</option>
+  </select>
+  <select id="themeFilter">
+    <option value="">全部系列</option>
+  </select>
+  <select id="memberFilter">
+    <option value="">全部成員</option>
+  </select>
 </div>
+
 <div class="grid" id="cardGrid"></div>
 
 <script>
@@ -84,20 +111,16 @@ function applyFilters(){
 
   // 根據條件排序
   if(!yearVal && !themeVal && !memberVal){
-    // 全部隨機
-    filtered = shuffleArray(filtered);
+    filtered = shuffleArray(filtered); // 全部隨機
   } else if(yearVal && !themeVal && !memberVal){
-    // 只選年份 → 該年份隨機
-    filtered = shuffleArray(filtered);
+    filtered = shuffleArray(filtered); // 只選年份 → 隨機
   } else if(themeVal){
-    // 選系列 → member > 編號
     filtered.sort((a,b)=>{
       if(a.member<b.member) return -1;
       if(a.member>b.member) return 1;
       return getNumber(a.img)-getNumber(b.img);
     });
   } else if(memberVal && !yearVal && !themeVal){
-    // 只選成員 → 年份 > 系列 > 編號
     filtered.sort((a,b)=>{
       if(a.year<b.year) return -1;
       if(a.year>b.year) return 1;
