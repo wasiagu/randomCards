@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>偶像小卡圖鑑（範本）</title>
+  <style>
+    :root{font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto, "Noto Sans TC", "Helvetica Neue", Arial;}
+    body{margin:0;background:#f7f7f8;color:#111}
+    header{background:linear-gradient(90deg,#fffbf0,#fff);padding:14px 16px;border-bottom:1px solid #eee}
+    h1{margin:0;font-size:18px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    select{padding:8px;border-radius:8px;border:1px solid #ddd;background:white}
+    main{padding:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+    .card{background:white;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);cursor:pointer}
+    .thumb{width:100%;height:0;padding-bottom:140%;background-size:cover;background-position:center}
+    .meta{padding:8px;font-size:13px}
+    .meta .m{display:block;font-weight:600}
+    .meta .s{display:block;color:#666;margin-top:6px;font-size:12px}
+    /* modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .18s}
+    .modal.show{opacity:1;pointer-events:auto}
+    .dialog{width:calc(100% - 40px);max-width:760px;background:white;border-radius:10px;overflow:hidden}
+    .dialog .body{display:flex;flex-direction:column}
+    .dialog .img{width:100%;padding-top:56%;background-size:contain;background-repeat:no-repeat;background-position:center;border-bottom:1px solid #eee}
+    .dialog .info{padding:12px}
+    .closebtn{position:absolute;right:12px;top:10px;background:#fff;border-radius:999px;border:0;padding:6px 8px;cursor:pointer}
+    @media(min-width:700px){.dialog .body{flex-direction:row}.dialog .img{width:50%;padding-top:0;height:420px}.dialog .info{width:50%}}
+    /* small helpers */
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .note{font-size:12px;color:#666}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>偶像小卡圖鑑（範本）</h1>
+        <div class="note">篩選：年度 / 主題 / 成員（中文介面）</div>
+      </div>
+      <div class="note">資料來源：cards.json；圖片放 Google Drive（公開）</div>
+    </div>
+    <div class="controls" style="margin-top:10px">
+      <label>
+        <select id="filter-year">
+          <option value="">年度</option>
+        </select>
+      </label>
+      <label>
+        <select id="filter-theme">
+          <option value="">主題</option>
+        </select>
+      </label>
+      <label>
+        <select id="filter-member">
+          <option value="">成員</option>
+        </select>
+      </label>
+      <label style="margin-left:auto">
+        <input id="search" placeholder="搜尋 成員 或 主題" style="padding:8px;border-radius:8px;border:1px solid #ddd;" />
+      </label>
+    </div>
+  </header>
+  <main>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <!-- modal -->
+  <div id="modal" class="modal" role="dialog" aria-hidden="true">
+    <div class="dialog">
+      <button class="closebtn" id="close">✕</button>
+      <div class="body">
+        <div id="modal-img" class="img"></div>
+        <div class="info" id="modal-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 使用說明（請放在同一資料夾）：
+    // 1) 上傳此檔 index.html 到 GitHub Pages（或任何靜態主機）。
+    // 2) 同資料夾放一個 'cards.json' 檔案（範例格式見下方）。
+    // 3) 圖片請在 Google Drive 設為"任何知道連結的人都可檢視"，然後把下列格式的 URL 放入 img 欄：
+    //    https://drive.google.com/thumbnail?id=DRIVE_FILE_ID&sz=w1000
+    //    （或用 https://drive.google.com/uc?export=view&id=DRIVE_FILE_ID）
+
+    const grid = document.getElementById('grid');
+    const selYear = document.getElementById('filter-year');
+    const selTheme = document.getElementById('filter-theme');
+    const selMember = document.getElementById('filter-member');
+    const search = document.getElementById('search');
+
+    let CARDS = [];
+
+    function uniq(arr){ return [...new Set(arr)]; }
+
+    function buildFilters(){
+      const years = uniq(CARDS.map(c=>c.year)).sort((a,b)=>b.localeCompare(a));
+      const themes = uniq(CARDS.map(c=>c.theme)).sort();
+      const members = uniq(CARDS.map(c=>c.member)).sort();
+
+      // 清空
+      [selYear, selTheme, selMember].forEach(s=>{
+        // keep first default option
+        while(s.options.length>1) s.remove(1);
+      });
+
+      years.forEach(y=>selYear.append(new Option(y,y)));
+      themes.forEach(t=>selTheme.append(new Option(t,t)));
+      members.forEach(m=>selMember.append(new Option(m,m)));
+    }
+
+    function render(cards){
+      grid.innerHTML='';
+      if(!cards.length){ grid.innerHTML='<div class="note">目前沒有符合的卡片</div>'; return; }
+      cards.forEach(c=>{
+        const el = document.createElement('div'); el.className='card';
+        el.innerHTML = `
+          <div class="thumb" style="background-image:url('${c.img}')"></div>
+          <div class="meta"><span class="m">${c.member}</span><span class="s">${c.year} • ${c.theme}</span></div>
+        `;
+        el.addEventListener('click',()=>openModal(c));
+        grid.appendChild(el);
+      });
+    }
+
+    function openModal(c){
+      const modal = document.getElementById('modal');
+      document.getElementById('modal-img').style.backgroundImage = `url('${c.img}')`;
+      document.getElementById('modal-info').innerHTML = `
+        <h2 style="margin:0 0 6px 0">${c.member}</h2>
+        <div style="color:#666;margin-bottom:8px">${c.year} • ${c.theme}</div>
+        <div style="font-size:14px;color:#333">${c.desc||''}</div>
+      `;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    document.getElementById('close').addEventListener('click',()=>{
+      const modal = document.getElementById('modal'); modal.classList.remove('show'); modal.setAttribute('aria-hidden','true');
+    });
+    document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') { document.getElementById('modal').classList.remove('show'); } });
+
+    function applyFilters(){
+      const y = selYear.value; const t = selTheme.value; const m = selMember.value; const q = search.value.trim().toLowerCase();
+      let out = CARDS.filter(c=>{
+        if(y && c.year!==y) return false;
+        if(t && c.theme!==t) return false;
+        if(m && c.member!==m) return false;
+        if(q){
+          const hay = (c.member + ' ' + c.theme + ' ' + (c.year||'')).toLowerCase();
+          if(!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      render(out);
+    }
+
+    [selYear, selTheme, selMember].forEach(s=>s.addEventListener('change',applyFilters));
+    search.addEventListener('input',()=>{ applyFilters(); });
+
+    // 載入 cards.json
+    fetch('cards.json').then(r=>r.json()).then(data=>{
+      CARDS = data;
+      buildFilters();
+      render(CARDS);
+    }).catch(err=>{
+      console.error(err);
+      grid.innerHTML = '<div class="note">載入 cards.json 失敗。請確認檔案與 index.html 在同一目錄，且為正確的 JSON 格式。</div>';
+    });
+
+  </script>
+
+  <!-- 範例 cards.json（請另存為 cards.json）
+  [
+    {
+      "year": "2025",
+      "theme": "BBFF",
+      "member": "BONNIE",
+      "desc": "限量特典",
+      "img": "https://drive.google.com/thumbnail?id=1p-0r-5y7HQz3SepxPS0xDBRUnXCCCJlw&sz=w1000"
+    }
+  ]
+  -->
+</body>
+</html>
