@@ -20,7 +20,7 @@ select { margin: 0 10px; padding: 5px; }
   height: 250px;                /* 卡片統一高度 */
   display: flex; 
   flex-direction: column; 
-  justify-content: flex-start;   /* 文字可靠下或置中 */
+  justify-content: flex-start;   
   align-items: center; 
   background: #fff; 
   border-radius: 12px; 
@@ -30,80 +30,4 @@ select { margin: 0 10px; padding: 5px; }
 }
 
 .card img { 
-  max-height: 150px;            /* 圖片最大高度 */
-  max-width: 100%;              /* 圖片寬度不超過卡片 */
-  object-fit: contain;          /* 保持比例，完整顯示 */
-  display: block; 
-  margin: 0 auto; 
-}
-
-.card .meta { 
-  margin-top: 10px; 
-  text-align: center; 
-  font-size: 0.9em; 
-  color: #555; 
-  flex-shrink: 0;               /* 文字固定位置 */
-}
-</style>
-</head>
-<body>
-<h1>小卡圖鑑</h1>
-
-<div class="filters">
-  <select id="yearFilter">
-    <option value="">全部年份</option>
-  </select>
-  <select id="themeFilter">
-    <option value="">全部系列</option>
-  </select>
-  <select id="memberFilter">
-    <option value="">全部成員</option>
-  </select>
-</div>
-
-<div class="grid" id="cardGrid"></div>
-
-<script>
-const sheetURL = 'https://opensheet.elk.sh/1FJLx_6Jp_qJ908AHmSsXNopTI4m9NV048J59oXKXL9A/1';
-let allCards = [];
-
-// 隨機排序
-function shuffleArray(array){
-  for(let i=array.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [array[i],array[j]] = [array[j],array[i]];
-  }
-  return array;
-}
-
-// render 卡片
-function renderCards(cards){
-  const grid = document.getElementById('cardGrid');
-  grid.innerHTML = '';
-  cards.forEach(c=>{
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-      <img src="${c.img}" alt="${c.member}">
-      <div class="meta">${c.member}<br>${c.year} • ${c.theme}</div>
-    `;
-    grid.appendChild(div);
-  });
-}
-
-// 解析檔名編號
-function getNumber(name){
-  const parts = name.split('_');
-  return parts.length>3 ? parseInt(parts[3]) : 0;
-}
-
-// 篩選與排序邏輯
-function applyFilters(){
-  const yearVal = document.getElementById('yearFilter').value;
-  const themeVal = document.getElementById('themeFilter').value;
-  const memberVal = document.getElementById('memberFilter').value;
-
-  let filtered = allCards.filter(c=>{
-    return (!yearVal || c.year === yearVal) &&
-           (!themeVal || c.theme === themeVal) &&
-           (!memberVal || c.member === memb
+  max-height: 150px;            /* 圖片最大高度 *
