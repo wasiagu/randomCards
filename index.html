@@ -21,7 +21,20 @@ select { margin: 0 10px; padding: 5px; }
 #lightbox-bg { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); }
 #lightbox-content { display:flex; flex-direction:column; align-items:center; max-width:90%; max-height:90%; z-index:10000; }
 #lightbox-img { max-width:100%; max-height:85vh; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5); margin-bottom:12px; }
-#lightbox-info { color:#ddd; font-size:16px; line-height:1.4; text-align:left; width:100%; }
+
+#lightbox-info {
+  color: #fff;
+  background: rgba(0,0,0,0.8);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: left;
+  width: 90%;
+  max-width: 500px;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9);
+}
+
 #lightbox-close { position:absolute; top:20px; right:30px; color:#fff; font-size:36px; font-weight:bold; cursor:pointer; z-index:10001; }
 
 @media(max-width:768px){ .card img{max-height:40vw;} }
@@ -39,7 +52,6 @@ select { margin: 0 10px; padding: 5px; }
 
 <h1>隨機卡圖鑑</h1>
 
-<!-- 選 Sheet -->
 <div class="sheetSelector">
   <label>選擇圖鑑：
     <select id="sheetSelect">
@@ -49,7 +61,6 @@ select { margin: 0 10px; padding: 5px; }
   </label>
 </div>
 
-<!-- 篩選器 -->
 <div class="filters">
   <select id="yearFilter"><option value="">全部年份</option></select>
   <select id="themeFilter"><option value="">全部系列</option></select>
@@ -69,11 +80,9 @@ select { margin: 0 10px; padding: 5px; }
 </div>
 
 <script>
-// 自動版本號
 const version = new Date().getTime();
 let allCards = [];
 
-// Lightbox
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const lightboxClose = document.getElementById('lightbox-close');
@@ -81,7 +90,6 @@ const lightboxBg = document.getElementById('lightbox-bg');
 lightboxClose.addEventListener('click', ()=>lightbox.style.display='none');
 lightboxBg.addEventListener('click', ()=>lightbox.style.display='none');
 
-// shuffle
 function shuffleArray(array){
   for(let i=array.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -90,13 +98,11 @@ function shuffleArray(array){
   return array;
 }
 
-// parse 檔名編號
 function getNumber(name){
   const parts=name.split('_');
   return parts.length>3 ? parseInt(parts[3]) : 0;
 }
 
-// render 卡片
 function renderCards(cards){
   const grid = document.getElementById('cardGrid');
   grid.innerHTML = '';
@@ -115,7 +121,6 @@ function renderCards(cards){
   });
 }
 
-// 篩選與排序
 function applyFilters(){
   const yearVal=document.getElementById('yearFilter').value;
   const themeVal=document.getElementById('themeFilter').value;
@@ -136,7 +141,6 @@ function applyFilters(){
   renderCards(filtered);
 }
 
-// populate 篩選器
 function populateFilters(cards){
   const yearSet=new Set(cards.map(c=>c.year));
   const themeSet=new Set(cards.map(c=>c.theme));
@@ -156,7 +160,6 @@ function populateFilters(cards){
   [yearSelect, themeSelect, memberSelect].forEach(sel=>sel.addEventListener('change', applyFilters));
 }
 
-// Lightbox open
 function openLightbox(card){
   lightbox.style.display = 'flex';
   lightboxImg.src = card.img + '?v=' + version;
@@ -168,7 +171,6 @@ function openLightbox(card){
   `;
 }
 
-// fetch Sheet
 function loadSheet(sheetId){
   const url=`https://opensheet.elk.sh/${sheetId}?v=${version}`;
   fetch(url)
@@ -180,11 +182,10 @@ function loadSheet(sheetId){
     });
 }
 
-// 切換 Sheet
 const sheetSelect=document.getElementById('sheetSelect');
 sheetSelect.addEventListener('change',()=>loadSheet(sheetSelect.value));
 
-// 初始載入
+// 預設載入 GMMTV
 loadSheet(sheetSelect.value);
 </script>
 </body>
