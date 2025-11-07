@@ -108,7 +108,6 @@ function renderCards(cards){
         <div>${c.year}</div>
         <div>${c.theme}</div>
       </div>`;
-    div.querySelector('img').addEventListener('click', ()=>lightbox.style.display='flex', false);
     div.querySelector('img').addEventListener('click', ()=>openLightbox(c));
     grid.appendChild(div);
   });
