@@ -3,116 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <title>隨機卡圖鑑</title>
-
-<!-- Viewport 設定 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
 h1 { text-align: center; }
 
-.filters { margin-bottom: 20px; text-align: center; }
+.filters, .sheetSelector { margin-bottom: 20px; text-align: center; }
 select { margin: 0 10px; padding: 5px; }
 
-/* Grid 桌面版 */
-.grid { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-  gap: 12px; 
-}
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); padding: 10px; display:flex; flex-direction:column; align-items:center; }
+.card img { max-height: 150px; width:auto; object-fit:contain; border-radius:8px; cursor:pointer; }
+.card .meta { margin-top:10px; text-align:center; font-size:0.9em; color:#555; }
+.card .meta div { margin:2px 0; }
 
-/* 卡片樣式 */
-.card { 
-  background: #fff; 
-  border-radius: 12px; 
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12); 
-  padding: 10px; 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: flex-start;
-  overflow: hidden;
-}
+#lightbox { position:fixed; top:0; left:0; width:100%; height:100%; display:none; justify-content:center; align-items:center; z-index:9999; }
+#lightbox-bg { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); }
+#lightbox-img { max-width:90%; max-height:90%; z-index:10000; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
+#lightbox-close { position:absolute; top:20px; right:30px; color:#fff; font-size:36px; font-weight:bold; cursor:pointer; z-index:10001; }
 
-.card img { 
-  max-height: 150px;       
-  width: auto;             
-  display: block; 
-  margin: 0 auto; 
-  object-fit: contain;      
-  border-radius: 8px;
-  cursor: pointer;          
-}
-
-.card .meta { 
-  margin-top: 10px; 
-  text-align: center; 
-  font-size: 0.9em; 
-  color: #555; 
-}
-
-.card .meta div { margin: 2px 0; }
-
-/* Lightbox */
-#lightbox {
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-#lightbox-bg {
-  position: absolute;
-  top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.8);
-}
-#lightbox-img {
-  max-width: 90%;
-  max-height: 90%;
-  z-index: 10000;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
-#lightbox-close {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  color: #fff;
-  font-size: 36px;
-  font-weight: bold;
-  cursor: pointer;
-  z-index: 10001;
-}
-
-/* ------------------ 手機優化 ------------------ */
-@media (max-width: 768px) {
-  .card img { max-height: 40vw; }
-}
-
-@media (max-width: 480px) {
-  .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-  .card { padding: 6px; }
-  .card .meta { font-size: 0.8em; }
-  .card img { max-height: 50vw; }
-  .filters select { display: block; margin: 6px auto; }
-  #lightbox-img { max-width: 90%; max-height: 80%; }
+@media(max-width:768px){ .card img{max-height:40vw;} }
+@media(max-width:480px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+  .card{padding:6px;}
+  .card .meta{font-size:0.8em;}
+  .card img{max-height:50vw;}
+  .filters select{display:block;margin:6px auto;}
+  #lightbox-img{max-width:90%; max-height:80%;}
 }
 </style>
 </head>
 <body>
+
 <h1>隨機卡圖鑑</h1>
 
+<!-- 選 Sheet -->
+<div class="sheetSelector">
+  <label>選擇圖鑑：
+    <select id="sheetSelect">
+      <!-- 第一個 -->
+      <option value="1FJLx_6Jp_qJ908AHmSsXNopTI4m9NV048J59oXKXL9A/1">GMMTV</option>
+
+      <!-- 第二個（你剛給的） -->
+      <option value="1NBbSpHbdpxxN_9MAFN1buLieOzfmrOcgX3q1cAyqGNo/1">K-POP</option>
+    </select>
+  </label>
+</div>
+
+<!-- 篩選器 -->
 <div class="filters">
-  <select id="yearFilter">
-    <option value="">全部年份</option>
-  </select>
-  <select id="themeFilter">
-    <option value="">全部系列</option>
-  </select>
-  <select id="memberFilter">
-    <option value="">全部成員</option>
-  </select>
+  <select id="yearFilter"><option value="">全部年份</option></select>
+  <select id="themeFilter"><option value="">全部系列</option></select>
+  <select id="memberFilter"><option value="">全部成員</option></select>
 </div>
 
 <div class="grid" id="cardGrid"></div>
@@ -127,143 +69,110 @@ select { margin: 0 10px; padding: 5px; }
 <script>
 // 自動版本號
 const version = new Date().getTime();
-
-// Sheet URL 加版本號
-const sheetURL = 'https://opensheet.elk.sh/1FJLx_6Jp_qJ908AHmSsXNopTI4m9NV048J59oXKXL9A/1?v=' + version;
-
 let allCards = [];
-
-// 隨機排序
-function shuffleArray(array){
-  for(let i=array.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [array[i],array[j]] = [array[j],array[i]];
-  }
-  return array;
-}
 
 // Lightbox
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const lightboxClose = document.getElementById('lightbox-close');
 const lightboxBg = document.getElementById('lightbox-bg');
+lightboxClose.addEventListener('click', ()=>lightbox.style.display='none');
+lightboxBg.addEventListener('click', ()=>lightbox.style.display='none');
 
-function openLightbox(src){
-  lightboxImg.src = src;
-  lightbox.style.display = 'flex';
+// shuffle
+function shuffleArray(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
 }
-
-function closeLightbox(){
-  lightbox.style.display = 'none';
-}
-
-lightboxClose.addEventListener('click', closeLightbox);
-lightboxBg.addEventListener('click', closeLightbox);
 
 // render 卡片
 function renderCards(cards){
   const grid = document.getElementById('cardGrid');
   grid.innerHTML = '';
   cards.forEach(c=>{
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
+    const div=document.createElement('div');
+    div.className='card';
+    div.innerHTML=`
       <img src="${c.img}?v=${version}" alt="${c.member}">
       <div class="meta">
         <div>${c.member}</div>
         <div>${c.year}</div>
         <div>${c.theme}</div>
-      </div>
-    `;
-    const imgEl = div.querySelector('img');
-    imgEl.addEventListener('click', ()=>openLightbox(c.img + '?v=' + version));
+      </div>`;
+    div.querySelector('img').addEventListener('click', ()=>lightbox.style.display='flex', false);
+    div.querySelector('img').addEventListener('click', ()=>lightboxImg.src=c.img+'?v='+version);
     grid.appendChild(div);
   });
 }
 
-// 解析檔名編號
+// parse 檔名編號
 function getNumber(name){
-  const parts = name.split('_');
+  const parts=name.split('_');
   return parts.length>3 ? parseInt(parts[3]) : 0;
 }
 
-// 篩選與排序邏輯
+// 篩選與排序
 function applyFilters(){
-  const yearVal = document.getElementById('yearFilter').value;
-  const themeVal = document.getElementById('themeFilter').value;
-  const memberVal = document.getElementById('memberFilter').value;
+  const yearVal=document.getElementById('yearFilter').value;
+  const themeVal=document.getElementById('themeFilter').value;
+  const memberVal=document.getElementById('memberFilter').value;
+  let filtered=allCards.filter(c=>(!yearVal||c.year===yearVal)&&(!themeVal||c.theme===themeVal)&&(!memberVal||c.member===memberVal));
 
-  let filtered = allCards.filter(c=>{
-    return (!yearVal || c.year === yearVal) &&
-           (!themeVal || c.theme === themeVal) &&
-           (!memberVal || c.member === memberVal);
-  });
-
-  if(!yearVal && !themeVal && !memberVal){
-    filtered = shuffleArray(filtered);
-  } else if(yearVal && !themeVal && !memberVal){
-    filtered = shuffleArray(filtered);
-  } else if(themeVal){
+  if(!yearVal&&!themeVal&&!memberVal) filtered=shuffleArray(filtered);
+  else if(yearVal&&!themeVal&&!memberVal) filtered=shuffleArray(filtered);
+  else if(themeVal){
+    filtered.sort((a,b)=>a.member<b.member?-1:a.member>b.member?1:getNumber(a.img)-getNumber(b.img));
+  } else if(memberVal&&!yearVal&&!themeVal){
     filtered.sort((a,b)=>{
-      if(a.member<b.member) return -1;
-      if(a.member>b.member) return 1;
-      return getNumber(a.img)-getNumber(b.img);
-    });
-  } else if(memberVal && !yearVal && !themeVal){
-    filtered.sort((a,b)=>{
-      if(a.year<b.year) return -1;
-      if(a.year>b.year) return 1;
-      if(a.theme<b.theme) return -1;
-      if(a.theme>b.theme) return 1;
+      if(a.year!==b.year) return a.year<b.year?-1:1;
+      if(a.theme!==b.theme) return a.theme<b.theme?-1:1;
       return getNumber(a.img)-getNumber(b.img);
     });
   }
-
   renderCards(filtered);
 }
 
-// 生成篩選選單
+// populate 篩選器
 function populateFilters(cards){
-  const yearSet = new Set(cards.map(c=>c.year));
-  const themeSet = new Set(cards.map(c=>c.theme));
-  const memberSet = new Set(cards.map(c=>c.member));
+  const yearSet=new Set(cards.map(c=>c.year));
+  const themeSet=new Set(cards.map(c=>c.theme));
+  const memberSet=new Set(cards.map(c=>c.member));
+  const yearSelect=document.getElementById('yearFilter');
+  const themeSelect=document.getElementById('themeFilter');
+  const memberSelect=document.getElementById('memberFilter');
 
-  const yearSelect = document.getElementById('yearFilter');
-  const themeSelect = document.getElementById('themeFilter');
-  const memberSelect = document.getElementById('memberFilter');
+  yearSelect.innerHTML='<option value="">全部年份</option>';
+  themeSelect.innerHTML='<option value="">全部系列</option>';
+  memberSelect.innerHTML='<option value="">全部成員</option>';
 
-  yearSet.forEach(y=>{
-    const option = document.createElement('option');
-    option.value = y;
-    option.textContent = y;
-    yearSelect.appendChild(option);
-  });
-  themeSet.forEach(t=>{
-    const option = document.createElement('option');
-    option.value = t;
-    option.textContent = t;
-    themeSelect.appendChild(option);
-  });
-  memberSet.forEach(m=>{
-    const option = document.createElement('option');
-    option.value = m;
-    option.textContent = m;
-    memberSelect.appendChild(option);
-  });
+  yearSet.forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; yearSelect.appendChild(o); });
+  themeSet.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; themeSelect.appendChild(o); });
+  memberSet.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; memberSelect.appendChild(o); });
 
-  [yearSelect, themeSelect, memberSelect].forEach(sel=>{
-    sel.addEventListener('change', applyFilters);
-  });
+  [yearSelect, themeSelect, memberSelect].forEach(sel=>sel.addEventListener('change', applyFilters));
 }
 
 // fetch Sheet
-fetch(sheetURL)
-  .then(r=>r.json())
-  .then(data=>{
-    allCards = data;
-    renderCards(shuffleArray([...allCards]));
-    populateFilters(allCards);
-  });
+function loadSheet(sheetId){
+  const url=`https://opensheet.elk.sh/${sheetId}?v=${version}`;
+  fetch(url)
+    .then(r=>r.json())
+    .then(data=>{
+      allCards=data;
+      renderCards(shuffleArray([...allCards]));
+      populateFilters(allCards);
+    });
+}
+
+// 切換 Sheet
+const sheetSelect=document.getElementById('sheetSelect');
+sheetSelect.addEventListener('change',()=>loadSheet(sheetSelect.value));
+
+// 初始載入
+loadSheet(sheetSelect.value);
 </script>
 </body>
 </html>
