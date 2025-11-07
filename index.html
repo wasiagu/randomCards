@@ -19,7 +19,9 @@ select { margin: 0 10px; padding: 5px; }
 
 #lightbox { position:fixed; top:0; left:0; width:100%; height:100%; display:none; justify-content:center; align-items:center; z-index:9999; }
 #lightbox-bg { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); }
-#lightbox-img { max-width:90%; max-height:90%; z-index:10000; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
+#lightbox-content { display:flex; flex-direction:column; align-items:center; max-width:90%; max-height:90%; z-index:10000; }
+#lightbox-img { max-width:100%; max-height:85vh; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5); margin-bottom:12px; }
+#lightbox-info { color:#ddd; font-size:16px; line-height:1.4; text-align:left; width:100%; }
 #lightbox-close { position:absolute; top:20px; right:30px; color:#fff; font-size:36px; font-weight:bold; cursor:pointer; z-index:10001; }
 
 @media(max-width:768px){ .card img{max-height:40vw;} }
@@ -41,10 +43,7 @@ select { margin: 0 10px; padding: 5px; }
 <div class="sheetSelector">
   <label>選擇圖鑑：
     <select id="sheetSelect">
-      <!-- 第一個 -->
       <option value="1FJLx_6Jp_qJ908AHmSsXNopTI4m9NV048J59oXKXL9A/1">GMMTV</option>
-
-      <!-- 第二個（你剛給的） -->
       <option value="1NBbSpHbdpxxN_9MAFN1buLieOzfmrOcgX3q1cAyqGNo/1">K-POP</option>
     </select>
   </label>
@@ -62,14 +61,11 @@ select { margin: 0 10px; padding: 5px; }
 <!-- Lightbox -->
 <div id="lightbox">
   <div id="lightbox-bg"></div>
-
-  <div id="lightbox-content" style="display:flex; flex-direction:column; align-items:center; max-width:90%; max-height:90%;">
-    <img id="lightbox-img" src="" alt="" style="max-width:100%; max-height:70vh; border-radius:8px; margin-bottom:12px;">
-
-    <div id="lightbox-info" style="color:white; font-size:16px; line-height:1.4; text-align:left; width:100%;"></div>
+  <div id="lightbox-content">
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-info"></div>
   </div>
-
-  <span id="lightbox-close" style="position:absolute; top:20px; right:30px; color:#fff; font-size:36px; font-weight:bold; cursor:pointer;">&times;</span>
+  <span id="lightbox-close">&times;</span>
 </div>
 
 <script>
@@ -94,6 +90,12 @@ function shuffleArray(array){
   return array;
 }
 
+// parse 檔名編號
+function getNumber(name){
+  const parts=name.split('_');
+  return parts.length>3 ? parseInt(parts[3]) : 0;
+}
+
 // render 卡片
 function renderCards(cards){
   const grid = document.getElementById('cardGrid');
@@ -111,12 +113,6 @@ function renderCards(cards){
     div.querySelector('img').addEventListener('click', ()=>openLightbox(c));
     grid.appendChild(div);
   });
-}
-
-// parse 檔名編號
-function getNumber(name){
-  const parts=name.split('_');
-  return parts.length>3 ? parseInt(parts[3]) : 0;
 }
 
 // 篩選與排序
@@ -160,6 +156,7 @@ function populateFilters(cards){
   [yearSelect, themeSelect, memberSelect].forEach(sel=>sel.addEventListener('change', applyFilters));
 }
 
+// Lightbox open
 function openLightbox(card){
   lightbox.style.display = 'flex';
   lightboxImg.src = card.img + '?v=' + version;
@@ -170,7 +167,6 @@ function openLightbox(card){
     備註：${card.note || ''}
   `;
 }
-
 
 // fetch Sheet
 function loadSheet(sheetId){
